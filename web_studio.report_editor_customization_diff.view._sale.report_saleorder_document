@@ -1,0 +1,816 @@
+<data>
+    <xpath position="replace" expr="/t[@t-name='sale.report_saleorder_document']/t[@t-call='web.external_layout']" meta-t-call="web.external_layout"/>
+    <xpath position="inside" expr="/t[@t-name='sale.report_saleorder_document']" meta-t-name="sale.report_saleorder_document">
+      <t t-set="doc" t-value="doc.with_context(lang=doc.partner_id.lang)"/>
+      <t t-set="company" t-value="doc.company_id"/>
+      <t t-set="partner" t-value="doc.partner_id"/>
+      <t t-set="invoice_partner" t-value="doc.partner_invoice_id or doc.partner_id"/>
+      <t t-set="is_sar" t-value="doc.currency_id.name == 'SAR'"/>
+      <t t-call="web.basic_layout" ws-call-key="1">
+        <style type="text/css">
+                 url('https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700&amp;display=swap');
+
+                @font-face {
+                    font-family: 'so_saudi_riyal';
+                    src: url('/msr_sar_symbol/static/src/fonts/saudi_riyal.ttf') format('truetype');
+                    font-weight: normal;
+                    font-style: normal;
+                }
+
+                html,
+                body,
+                .article,
+                .page.so-custom-report,
+                .page.so-custom-report * {
+                    font-family: 'Tajawal', Arial, sans-serif !important;
+                }
+
+                html,
+                body,
+                .article {
+                    margin-top: 0 !important;
+                    padding-top: 0 !important;
+                }
+
+                .page.so-custom-report {
+                    direction: rtl;
+                    color: #20252b;
+                    font-size: 9pt;
+                    line-height: 1.25;
+                    margin-top: 0 !important;
+                    padding-top: 0 !important;
+                }
+
+                .so-custom-report * {
+                    box-sizing: border-box;
+                }
+
+                .page.so-custom-report .so-riyal-glyph {
+                    font-family: 'so_saudi_riyal' !important;
+                    font-size: 11pt;
+                    font-weight: normal !important;
+                    font-style: normal !important;
+                    line-height: 1;
+                    display: inline-block;
+                    direction: ltr;
+                    vertical-align: baseline;
+                }
+
+                .so-money {
+                    direction: ltr;
+                    white-space: nowrap;
+                }
+
+                .so-custom-report table {
+                    width: 100%;
+                    table-layout: fixed;
+                    border-collapse: separate;
+                    border-spacing: 0;
+                }
+
+                .so-custom-report tr,
+                .so-summary-box,
+                .so-note-box,
+                .so-signature-box {
+                    page-break-inside: avoid !important;
+                }
+
+                .so-logo-header {
+                    text-align: center;
+                    padding: 0 !important;
+                    margin: 0 0 6px !important;
+                    line-height: 1 !important;
+                }
+
+                .so-logo {
+                    display: inline-block;
+                    max-width: 105px;
+                    max-height: 82px;
+                    width: auto;
+                    height: auto;
+                    vertical-align: top;
+                }
+
+                .so-rounded {
+                    border: 1px solid #aeb7bf;
+                    border-radius: 7px;
+                    overflow: hidden;
+                }
+
+                .so-doc-bar {
+                    margin: 0 0 10px;
+                }
+
+                .so-doc-bar td {
+                    text-align: center;
+                    vertical-align: middle;
+                    padding: 6px 5px;
+                    border-left: 1px solid #cbd2d8;
+                }
+
+                .so-doc-bar td:last-child {
+                    border-left: 0;
+                }
+
+                .so-doc-label {
+                    background: #f2f3f4;
+                    font-weight: 700;
+                }
+
+                .so-label-ar,
+                .so-label-en {
+                    display: block;
+                }
+
+                .so-label-ar {
+                    direction: rtl;
+                    font-weight: 700;
+                }
+
+                .so-label-en {
+                    direction: ltr;
+                    font-size: 8pt;
+                    font-weight: 400;
+                    color: #555;
+                    margin-top: 1px;
+                }
+
+                .so-doc-value {
+                    direction: ltr;
+                    white-space: nowrap;
+                    font-weight: 500;
+                }
+
+                .so-doc-number {
+                    direction: ltr;
+                    white-space: nowrap;
+                    font-size: 12pt;
+                    font-weight: 700;
+                }
+
+                .so-doc-type {
+                    font-size: 10pt;
+                    font-weight: 700;
+                }
+
+                .so-doc-type-en {
+                    display: block;
+                    direction: ltr;
+                    font-size: 8pt;
+                    font-weight: 400;
+                    color: #555;
+                    margin-top: 1px;
+                }
+
+                .so-party-table {
+                    margin-bottom: 10px;
+                }
+
+                .so-party-table td {
+                    width: 50%;
+                    vertical-align: top;
+                    padding: 0;
+                }
+
+                .so-party-cell {
+                    min-height: 122px;
+                    padding: 7px 9px;
+                    overflow-wrap: break-word;
+                    word-wrap: break-word;
+                }
+
+                .so-party-company {
+                    border-left: 1px solid #cbd2d8;
+                }
+
+                .so-party-heading {
+                    font-weight: 700;
+                    margin-bottom: 4px;
+                    border-bottom: 1px solid #dde2e6;
+                    padding-bottom: 3px;
+                }
+
+                .so-party-heading-en {
+                    direction: ltr;
+                    display: inline-block;
+                    margin-right: 4px;
+                    font-weight: 500;
+                }
+
+                .so-party-name {
+                    font-weight: 700;
+                    margin-bottom: 3px;
+                }
+
+                .so-party-row {
+                    margin: 1px 0;
+                }
+
+                .so-field-label {
+                    font-weight: 700;
+                }
+
+                .so-ltr {
+                    direction: ltr;
+                    unicode-bidi: embed;
+                    display: inline-block;
+                }
+
+                .so-lines {
+                    margin-bottom: 0;
+                    font-size: 9pt;
+                }
+
+                .so-lines thead {
+                    display: table-header-group;
+                }
+
+                .so-lines th,
+                .so-lines td {
+                    padding: 3px 3px !important;
+                    vertical-align: middle !important;
+                    text-align: center !important;
+                    line-height: 1.15 !important;
+                    overflow-wrap: break-word;
+                    word-wrap: break-word;
+                    border-left: 1px solid #bfc6cd;
+                    border-bottom: 1px solid #bfc6cd;
+                }
+
+                .so-lines th:last-child,
+                .so-lines td:last-child {
+                    border-left: 0;
+                }
+
+                .so-lines tbody tr:last-child td {
+                    border-bottom: 0;
+                }
+
+                .so-lines th {
+                    background-color: #eef0f2;
+                    font-weight: 700;
+                }
+
+                .so-th-ar,
+                .so-th-en {
+                    display: block;
+                    text-align: center;
+                }
+
+                .so-th-ar {
+                    direction: rtl;
+                    font-weight: 700;
+                }
+
+                .so-th-en {
+                    direction: ltr;
+                    font-size: 8pt;
+                    font-weight: 400;
+                    color: #555;
+                    margin-top: 1px;
+                }
+
+                .so-description-cell {
+                    text-align: right !important;
+                    direction: rtl;
+                }
+
+                .so-product-ar {
+                    display: block;
+                    direction: rtl;
+                    text-align: right;
+                    font-weight: 700;
+                    line-height: 1.15 !important;
+                    margin: 0 !important;
+                    padding: 0 !important;
+                }
+
+                .so-product-en {
+                    display: block;
+                    direction: ltr;
+                    text-align: left;
+                    font-weight: 400;
+                    color: #555;
+                    line-height: 1.15 !important;
+                    margin: 1px 0 0 !important;
+                    padding: 0 !important;
+                }
+
+                .so-product-code {
+                    display: block;
+                    direction: ltr;
+                    text-align: center;
+                    color: #526979;
+                    font-size: 8pt;
+                    line-height: 1.1 !important;
+                    margin: 2px 0 0 !important;
+                    padding: 0 !important;
+                }
+
+                .so-price-cell,
+                .so-total-cell {
+                    direction: ltr;
+                    white-space: nowrap;
+                }
+
+                .so-section-row td {
+                    background-color: #f4f5f6;
+                    font-weight: 700;
+                    text-align: right !important;
+                    direction: rtl;
+                    padding: 4px 6px !important;
+                }
+
+                .so-note-row td {
+                    color: #555;
+                    font-style: italic;
+                    text-align: right !important;
+                    direction: rtl;
+                    padding: 4px 6px !important;
+                }
+
+                .so-section-subtotal td {
+                    background-color: #fafafa;
+                    font-weight: 700;
+                    text-align: left !important;
+                    direction: ltr;
+                }
+
+                .so-summary-box {
+                    width: 54%;
+                    margin-right: 0;
+                    margin-left: auto;
+                    margin-top: 0;
+                }
+
+                .so-summary-box td {
+                    padding: 6px 8px;
+                    vertical-align: middle;
+                    border-left: 1px solid #29323a;
+                    border-bottom: 1px solid #29323a;
+                }
+
+                .so-summary-box td:last-child {
+                    border-left: 0;
+                }
+
+                .so-summary-box tr:last-child td {
+                    border-bottom: 0;
+                }
+
+                .so-summary-label {
+                    width: 62%;
+                    text-align: right;
+                    font-weight: 500;
+                }
+
+                .so-summary-label-en {
+                    direction: ltr;
+                    font-size: 8pt;
+                    color: #555;
+                    margin-right: 4px;
+                }
+
+                .so-summary-value {
+                    width: 38%;
+                    text-align: center;
+                    direction: ltr;
+                    white-space: nowrap;
+                }
+
+                .so-summary-total td {
+                    background-color: #eef0f2;
+                    font-weight: 700;
+                }
+
+                .so-summary-info td {
+                    background-color: #fafbfc;
+                }
+
+                .so-note-box,
+                .so-signature-box {
+                    margin-top: 12px;
+                    padding: 7px 9px;
+                }
+
+                .so-note-title,
+                .so-signature-title {
+                    font-weight: 700;
+                    margin-bottom: 3px;
+                }
+
+                .so-note-title-en {
+                    direction: ltr;
+                    color: #555;
+                    margin-right: 4px;
+                }
+
+                .so-signature-image {
+                    max-width: 200px;
+                    max-height: 60px;
+                    width: auto;
+                    height: auto;
+                }
+            </style>
+        <div class="page so-custom-report" dir="rtl">
+          <div class="so-logo-header" t-if="company.logo">
+            <img class="so-logo" t-att-src="image_data_uri(company.logo)" t-att-alt="company.name or 'Company Logo'"/>
+          </div>
+          <table class="so-doc-bar so-rounded">
+            <tbody>
+              <tr>
+                <td style="width: 16%;" class="so-doc-label">
+                  <span class="so-label-ar">تاريخ الطلب</span>
+                  <span class="so-label-en">ORDER DATE</span>
+                </td>
+                <td style="width: 15%;">
+                  <span class="so-doc-value" t-if="doc.date_order" t-field="doc.date_order" t-options="{&quot;widget&quot;: &quot;date&quot;}"/>
+                  <span t-if="not doc.date_order">-</span>
+                </td>
+                <td style="width: 17%;" class="so-doc-label">
+                  <span class="so-label-ar">مندوب المبيعات</span>
+                  <span class="so-label-en">SALESPERSON</span>
+                </td>
+                <td style="width: 16%;">
+                  <span t-if="doc.user_id" t-field="doc.user_id.name"/>
+                  <span t-if="not doc.user_id">-</span>
+                </td>
+                <td style="width: 18%;">
+                  <span class="so-doc-type">
+                    <t t-if="doc.state in ('draft', 'sent')">عرض سعر</t>
+                    <t t-else="">أمر بيع</t>
+                  </span>
+                  <span class="so-doc-type-en">
+                    <t t-if="doc.state in ('draft', 'sent')">QUOTATION</t>
+                    <t t-else="">SALES ORDER</t>
+                  </span>
+                </td>
+                <td style="width: 18%;">
+                  <span class="so-doc-number" t-field="doc.name"/>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+          <table class="so-party-table so-rounded">
+            <tbody>
+              <tr>
+                <td>
+                  <div class="so-party-cell so-party-company">
+                    <div class="so-party-heading">
+                                        الشركة
+                                        <span class="so-party-heading-en">COMPANY</span>
+                    </div>
+                    <div class="so-party-name">
+                      <span t-field="company.name"/>
+                    </div>
+                    <div class="so-party-row" t-if="company.street or company.street2 or company.city or company.state_id or company.zip or company.country_id">
+                      <span class="so-field-label">العنوان</span>
+                      <span class="so-party-heading-en">ADDRESS</span>:
+                                        <span t-if="company.street" t-field="company.street"/>
+                      <span t-if="company.street2"> - <span t-field="company.street2"/>
+                      </span>
+                      <span t-if="company.city"> - <span t-field="company.city"/>
+                      </span>
+                      <span t-if="company.state_id"> - <span t-field="company.state_id.name"/>
+                      </span>
+                      <span t-if="company.zip"> - <span t-field="company.zip"/>
+                      </span>
+                      <span t-if="company.country_id"> - <span t-field="company.country_id.name"/>
+                      </span>
+                    </div>
+                    <div class="so-party-row" t-if="company.vat">
+                      <span class="so-field-label">الرقم الضريبي</span>
+                      <span class="so-party-heading-en">VAT</span>:
+                                        <span class="so-ltr" t-field="company.vat"/>
+                    </div>
+                    <div class="so-party-row" t-if="company.company_registry">
+                      <span class="so-field-label">السجل التجاري</span>
+                      <span class="so-party-heading-en">CR</span>:
+                                        <span class="so-ltr" t-field="company.company_registry"/>
+                    </div>
+                    <div class="so-party-row" t-if="company.phone">
+                      <span class="so-field-label">الهاتف</span>
+                      <span class="so-party-heading-en">PHONE</span>:
+                                        <span class="so-ltr" t-field="company.phone"/>
+                    </div>
+                    <div class="so-party-row" t-if="company.email">
+                      <span class="so-field-label">البريد</span>
+                      <span class="so-party-heading-en">EMAIL</span>:
+                                        <span class="so-ltr" t-field="company.email"/>
+                    </div>
+                  </div>
+                </td>
+                <td>
+                  <div class="so-party-cell">
+                    <div class="so-party-heading">
+                                        العميل
+                                        <span class="so-party-heading-en">CUSTOMER</span>
+                    </div>
+                    <div class="so-party-name">
+                      <span t-field="partner.name"/>
+                    </div>
+                    <div class="so-party-row" t-if="invoice_partner.street or invoice_partner.street2 or invoice_partner.city or invoice_partner.state_id or invoice_partner.zip or invoice_partner.country_id">
+                      <span class="so-field-label">العنوان</span>
+                      <span class="so-party-heading-en">ADDRESS</span>:
+                                        <span t-if="invoice_partner.street" t-field="invoice_partner.street"/>
+                      <span t-if="invoice_partner.street2"> - <span t-field="invoice_partner.street2"/>
+                      </span>
+                      <span t-if="invoice_partner.city"> - <span t-field="invoice_partner.city"/>
+                      </span>
+                      <span t-if="invoice_partner.state_id"> - <span t-field="invoice_partner.state_id.name"/>
+                      </span>
+                      <span t-if="invoice_partner.zip"> - <span t-field="invoice_partner.zip"/>
+                      </span>
+                      <span t-if="invoice_partner.country_id"> - <span t-field="invoice_partner.country_id.name"/>
+                      </span>
+                    </div>
+                    <div class="so-party-row" t-if="invoice_partner.vat">
+                      <span class="so-field-label">الرقم الضريبي</span>
+                      <span class="so-party-heading-en">VAT</span>:
+                                        <span class="so-ltr" t-field="invoice_partner.vat"/>
+                    </div>
+                    <div class="so-party-row" t-if="invoice_partner.phone or invoice_partner.mobile">
+                      <span class="so-field-label">الهاتف</span>
+                      <span class="so-party-heading-en">PHONE</span>:
+                                        <span class="so-ltr" t-out="invoice_partner.phone or invoice_partner.mobile"/>
+                    </div>
+                    <div class="so-party-row" t-if="invoice_partner.email">
+                      <span class="so-field-label">البريد</span>
+                      <span class="so-party-heading-en">EMAIL</span>:
+                                        <span class="so-ltr" t-field="invoice_partner.email"/>
+                    </div>
+                  </div>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+          <table class="so-lines so-rounded">
+            <thead>
+              <tr>
+                <th style="width: 12%;">
+                  <span class="so-th-ar">رقم الصنف</span>
+                  <span class="so-th-en">REF#</span>
+                </th>
+                <th style="width: 30%;">
+                  <span class="so-th-ar">المنتجات</span>
+                  <span class="so-th-en">PRODUCT</span>
+                </th>
+                <th style="width: 7%;">
+                  <span class="so-th-ar">الكمية</span>
+                  <span class="so-th-en">QTY</span>
+                </th>
+                <th style="width: 9%;">
+                  <span class="so-th-ar">الوحدة</span>
+                  <span class="so-th-en">UOM</span>
+                </th>
+                <th style="width: 10%;">
+                  <span class="so-th-ar">السعر</span>
+                  <span class="so-th-en">UNIT PRICE</span>
+                </th>
+                <th style="width: 8%;">
+                  <span class="so-th-ar">الخصم</span>
+                  <span class="so-th-en">DISCOUNT</span>
+                </th>
+                <th style="width: 8%;">
+                  <span class="so-th-ar">الضريبة</span>
+                  <span class="so-th-en">TAXES</span>
+                </th>
+                <th style="width: 17%;">
+                  <span class="so-th-ar">الإجمالي</span>
+                  <span class="so-th-en">TOTAL</span>
+                </th>
+              </tr>
+            </thead>
+            <tbody>
+              <t t-set="line_number" t-value="0"/>
+              <t t-set="section_subtotal" t-value="0"/>
+              <t t-set="current_section" t-value="False"/>
+              <t t-foreach="doc.order_line" t-as="line">
+                <t t-if="line.display_type == 'line_section'">
+                  <t t-set="section_subtotal" t-value="0"/>
+                  <t t-set="current_section" t-value="True"/>
+                  <tr class="so-section-row">
+                    <td colspan="8">
+                      <span t-field="line.name"/>
+                    </td>
+                  </tr>
+                </t>
+                <t t-elif="line.display_type == 'line_note'">
+                  <tr class="so-note-row">
+                    <td colspan="8">
+                      <span t-field="line.name"/>
+                    </td>
+                  </tr>
+                </t>
+                <t t-else="">
+                  <t t-set="line_number" t-value="line_number + 1"/>
+                  <t t-set="section_subtotal" t-value="section_subtotal + line.price_subtotal"/>
+                  <t t-set="product_name" t-value="line.product_id.name or line.name or ''"/>
+                  <t t-set="product_code" t-value="line.product_id.default_code if line.product_id else False"/>
+                  <t t-set="product_text" t-value="product_name if isinstance(product_name, str) else ''"/>
+                  <tr>
+                    <td>
+                      <span t-if="product_code" t-out="product_code"/>
+                      <span t-else="" t-out="line_number"/>
+                    </td>
+                    <td class="so-description-cell">
+                      <t t-if="'-' in product_text">
+                        <span class="so-product-ar" t-out="product_text.partition('-')[0].strip()"/>
+                        <span class="so-product-en" t-out="product_text.partition('-')[2].strip()"/>
+                      </t>
+                      <t t-else="">
+                        <span class="so-product-ar" t-out="product_text"/>
+                      </t>
+                    </td>
+                    <td>
+                      <span t-field="line.product_uom_qty"/>
+                    </td>
+                    <td>
+                      <span t-if="line.product_uom" t-field="line.product_uom.name"/>
+                      <span t-else="">-</span>
+                    </td>
+                    <!-- محتوى الإجمالي أصبح هنا تحت كلمة "السعر" -->
+                    <td class="so-price-cell">
+                      <span class="so-money">
+                        <t t-if="is_sar">
+                          <span t-field="line.price_subtotal" t-options="{&quot;widget&quot;: &quot;float&quot;, &quot;precision&quot;: 2}"/>
+                          <span class="so-riyal-glyph"/>
+                        </t>
+                        <t t-else="">
+                          <span t-field="line.price_subtotal" t-options="{&quot;widget&quot;: &quot;monetary&quot;, &quot;display_currency&quot;: doc.currency_id}"/>
+                        </t>
+                      </span>
+                    </td>
+                    <td>
+                      <t t-if="line.discount">
+                        <span t-field="line.discount"/>%
+                                        </t>
+                      <t t-else="">-</t>
+                    </td>
+                    <td>
+                      <t t-if="line.tax_id">
+                        <span t-out="', '.join(line.tax_id.mapped('name'))"/>
+                      </t>
+                      <t t-else="">-</t>
+                    </td>
+                    <!-- محتوى السعر أصبح هنا تحت عمود "الإجمالي" -->
+                    <td class="so-total-cell">
+                      <span class="so-money">
+                        <t t-if="is_sar">
+                          <span t-field="line.price_unit" t-options="{&quot;widget&quot;: &quot;float&quot;, &quot;precision&quot;: 2}"/>
+                          <span class="so-riyal-glyph"/>
+                        </t>
+                        <t t-else="">
+                          <span t-field="line.price_unit" t-options="{&quot;widget&quot;: &quot;monetary&quot;, &quot;display_currency&quot;: doc.currency_id}"/>
+                        </t>
+                      </span>
+                    </td>
+                  </tr>
+                </t>
+                <t t-if="current_section                                      and line.display_type != 'line_section'                                      and (                                         line_last                                         or doc.order_line[line_index + 1].display_type == 'line_section'                                      )">
+                  <tr class="so-section-subtotal">
+                    <td colspan="8">
+                                        إجمالي القسم
+                                        <span class="so-summary-label-en">SECTION SUBTOTAL</span>:
+                                        <t t-if="is_sar">
+                        <span t-out="section_subtotal" t-options="{&quot;widget&quot;: &quot;float&quot;, &quot;precision&quot;: 2}"/>
+                        <span class="so-riyal-glyph"/>
+                      </t>
+                      <t t-else="">
+                        <span t-out="section_subtotal" t-options="{&quot;widget&quot;: &quot;monetary&quot;, &quot;display_currency&quot;: doc.currency_id}"/>
+                      </t>
+                    </td>
+                  </tr>
+                  <t t-set="current_section" t-value="False"/>
+                </t>
+              </t>
+            </tbody>
+          </table>
+          <div class="so-summary-box">
+            <table class="so-rounded">
+              <tbody>
+                <tr>
+                  <td class="so-summary-label">
+                                    الإجمالي قبل الضريبة
+                                    <span class="so-summary-label-en">UNTAXED AMOUNT</span>
+                  </td>
+                  <td class="so-summary-value">
+                    <span class="so-money">
+                      <t t-if="is_sar">
+                        <span t-field="doc.amount_untaxed" t-options="{&quot;widget&quot;: &quot;float&quot;, &quot;precision&quot;: 2}"/>
+                        <span class="so-riyal-glyph"/>
+                      </t>
+                      <t t-else="">
+                        <span t-field="doc.amount_untaxed" t-options="{&quot;widget&quot;: &quot;monetary&quot;, &quot;display_currency&quot;: doc.currency_id}"/>
+                      </t>
+                    </span>
+                  </td>
+                </tr>
+                <tr>
+                  <td class="so-summary-label">
+                                    الضرائب
+                                    <span class="so-summary-label-en">VAT TAXES</span>
+                  </td>
+                  <td class="so-summary-value">
+                    <span class="so-money">
+                      <t t-if="is_sar">
+                        <span t-field="doc.amount_tax" t-options="{&quot;widget&quot;: &quot;float&quot;, &quot;precision&quot;: 2}"/>
+                        <span class="so-riyal-glyph"/>
+                      </t>
+                      <t t-else="">
+                        <span t-field="doc.amount_tax" t-options="{&quot;widget&quot;: &quot;monetary&quot;, &quot;display_currency&quot;: doc.currency_id}"/>
+                      </t>
+                    </span>
+                  </td>
+                </tr>
+                <tr class="so-summary-total">
+                  <td class="so-summary-label">
+                                    الإجمالي
+                                    <span class="so-summary-label-en">TOTAL</span>
+                  </td>
+                  <td class="so-summary-value">
+                    <span class="so-money">
+                      <t t-if="is_sar">
+                        <span t-field="doc.amount_total" t-options="{&quot;widget&quot;: &quot;float&quot;, &quot;precision&quot;: 2}"/>
+                        <span class="so-riyal-glyph"/>
+                      </t>
+                      <t t-else="">
+                        <span t-field="doc.amount_total" t-options="{&quot;widget&quot;: &quot;monetary&quot;, &quot;display_currency&quot;: doc.currency_id}"/>
+                      </t>
+                    </span>
+                  </td>
+                </tr>
+                <tr class="so-summary-info" t-if="doc.payment_term_id">
+                  <td class="so-summary-label">
+                                    شروط الدفع
+                                    <span class="so-summary-label-en">PAYMENT TERMS</span>
+                  </td>
+                  <td class="so-summary-value">
+                    <span t-field="doc.payment_term_id.name"/>
+                  </td>
+                </tr>
+                <tr class="so-summary-info" t-if="doc.validity_date and doc.state in ('draft', 'sent')">
+                  <td class="so-summary-label">
+                                    تاريخ الصلاحية
+                                    <span class="so-summary-label-en">VALID UNTIL</span>
+                  </td>
+                  <td class="so-summary-value">
+                    <span t-field="doc.validity_date"/>
+                  </td>
+                </tr>
+                <tr class="so-summary-info" t-if="doc.commitment_date and doc.state not in ('draft', 'sent')">
+                  <td class="so-summary-label">
+                                    تاريخ التسليم
+                                    <span class="so-summary-label-en">DELIVERY DATE</span>
+                  </td>
+                  <td class="so-summary-value">
+                    <span t-field="doc.commitment_date" t-options="{&quot;widget&quot;: &quot;date&quot;}"/>
+                  </td>
+                </tr>
+                <tr class="so-summary-info" t-if="doc.client_order_ref">
+                  <td class="so-summary-label">
+                                    مرجع العميل
+                                    <span class="so-summary-label-en">CUSTOMER REF.</span>
+                  </td>
+                  <td class="so-summary-value">
+                    <span t-field="doc.client_order_ref"/>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+          <div class="so-note-box so-rounded" t-if="doc.payment_term_id and doc.payment_term_id.note">
+            <div class="so-note-title">
+                        شروط الدفع
+                        <span class="so-note-title-en">PAYMENT TERMS</span>
+            </div>
+            <div t-field="doc.payment_term_id.note"/>
+          </div>
+          <div class="so-note-box so-rounded" t-if="doc.fiscal_position_id and doc.fiscal_position_id.sudo().note">
+            <div class="so-note-title">
+                        ملاحظة الوضع الضريبي
+                        <span class="so-note-title-en">FISCAL POSITION REMARK</span>
+            </div>
+            <div t-field="doc.fiscal_position_id.sudo().note"/>
+          </div>
+          <div class="so-note-box so-rounded" t-if="doc.note">
+            <div class="so-note-title">
+                        ملاحظات
+                        <span class="so-note-title-en">NOTES</span>
+            </div>
+            <div t-field="doc.note"/>
+          </div>
+          <div class="so-signature-box so-rounded" t-if="doc.signature">
+            <div class="so-signature-title">
+                        توقيع العميل
+                        <span class="so-note-title-en">CUSTOMER SIGNATURE</span>
+            </div>
+            <img class="so-signature-image" t-att-src="image_data_uri(doc.signature)" t-att-alt="doc.signed_by or 'Customer Signature'"/>
+            <div t-if="doc.signed_by">
+              <span t-field="doc.signed_by"/>
+            </div>
+          </div>
+        </div>
+      </t>
+    </xpath>
+  </data>
