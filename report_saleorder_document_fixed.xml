@@ -605,6 +605,7 @@
                 <t t-else="">
                   <t t-set="line_number" t-value="line_number + 1"/>
                   <t t-set="section_subtotal" t-value="section_subtotal + line.price_total"/>
+                  <t t-set="unit_excl" t-value="line.tax_id.compute_all(line.price_unit, doc.currency_id, 1.0, product=line.product_id, partner=doc.partner_id)['total_excluded']"/>
                   <t t-set="product_name" t-value="line.product_id.name or line.name or ''"/>
                   <t t-set="product_code" t-value="line.product_id.default_code if line.product_id else False"/>
                   <t t-set="product_text" t-value="product_name if isinstance(product_name, str) else ''"/>
@@ -632,11 +633,11 @@
                     <td class="so-price-cell">
                       <span class="so-money">
                         <t t-if="is_sar">
-                          <span t-field="line.price_unit" t-options="{&quot;widget&quot;: &quot;float&quot;, &quot;precision&quot;: 2}"/>
+                          <span t-out="unit_excl" t-options="{&quot;widget&quot;: &quot;float&quot;, &quot;precision&quot;: 2}"/>
                           <span class="so-riyal-glyph"/>
                         </t>
                         <t t-else="">
-                          <span t-field="line.price_unit" t-options="{&quot;widget&quot;: &quot;monetary&quot;, &quot;display_currency&quot;: doc.currency_id}"/>
+                          <span t-out="unit_excl" t-options="{&quot;widget&quot;: &quot;monetary&quot;, &quot;display_currency&quot;: doc.currency_id}"/>
                         </t>
                       </span>
                     </td>
