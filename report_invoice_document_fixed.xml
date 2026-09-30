@@ -47,6 +47,10 @@
                     box-sizing: border-box;
                 }
 
+                .so-hidden {
+                    display: none !important;
+                }
+
                 .page.so-custom-report .so-riyal-glyph {
                     font-family: 'so_saudi_riyal' !important;
                     font-size: 11pt;
@@ -396,10 +400,12 @@
                     margin-right: 4px;
                 }
             </style>
+        <div class="clearfix invoice_main">
         <div class="page so-custom-report" dir="rtl">
           <div class="so-logo-header" t-if="company.logo">
             <img class="so-logo" t-att-src="image_data_uri(company.logo)" t-att-alt="company.name or 'Company Logo'"/>
           </div>
+          <div class="oe_structure"/>
           <div id="informations">
           <table class="so-doc-bar so-rounded">
             <tbody>
@@ -553,18 +559,19 @@
               </tr>
             </tbody>
           </table>
-          <table class="so-lines so-rounded" name="invoice_line_table">
+          <div class="oe_structure"/>
+          <table class="so-lines so-rounded o_has_total_table o_main_table" name="invoice_line_table">
             <thead>
               <tr>
                 <th style="width: 11%;">
                   <span class="so-th-ar">رقم الصنف</span>
                   <span class="so-th-en">REF#</span>
                 </th>
-                <th style="width: 28%;">
+                <th name="th_description" style="width: 28%;">
                   <span class="so-th-ar">اسم المنتج</span>
                   <span class="so-th-en">PRODUCT</span>
                 </th>
-                <th style="width: 7%;">
+                <th name="th_quantity" style="width: 7%;">
                   <span class="so-th-ar">الكمية</span>
                   <span class="so-th-en">QTY</span>
                 </th>
@@ -572,19 +579,19 @@
                   <span class="so-th-ar">الوحدة</span>
                   <span class="so-th-en">UOM</span>
                 </th>
-                <th style="width: 12%;">
+                <th name="th_priceunit" style="width: 12%;">
                   <span class="so-th-ar">السعر غير شامل الضريبة</span>
                   <span class="so-th-en">UNIT PRICE EXCL. TAX</span>
                 </th>
-                <th style="width: 8%;">
+                <th name="th_discount" style="width: 8%;">
                   <span class="so-th-ar">الخصم</span>
                   <span class="so-th-en">DISCOUNT</span>
                 </th>
-                <th style="width: 10%;">
+                <th name="th_taxes" style="width: 10%;">
                   <span class="so-th-ar">الضريبة المطبقة</span>
                   <span class="so-th-en">TAXES</span>
                 </th>
-                <th style="width: 15%;">
+                <th name="th_subtotal" style="width: 15%;">
                   <span class="so-th-ar">الإجمالي شامل الضريبة</span>
                   <span class="so-th-en">TOTAL INCL. TAX</span>
                 </th>
@@ -599,14 +606,14 @@
                 <t t-if="line.display_type == 'line_section'">
                   <t t-set="section_subtotal" t-value="0"/>
                   <t t-set="current_section" t-value="True"/>
-                  <tr class="so-section-row">
+                  <tr class="so-section-row o_line_section">
                     <td colspan="8">
                       <span t-field="line.name" t-options="{'widget': 'text'}"/>
                     </td>
                   </tr>
                 </t>
                 <t t-elif="line.display_type == 'line_note'">
-                  <tr class="so-note-row">
+                  <tr class="so-note-row o_line_note">
                     <td colspan="8">
                       <span t-field="line.name" t-options="{'widget': 'text'}"/>
                     </td>
@@ -625,7 +632,7 @@
                       <span t-if="product_code" t-out="product_code"/>
                       <span t-else="" t-out="line_number"/>
                     </td>
-                    <td class="so-description-cell">
+                    <td name="account_invoice_line_name" class="so-description-cell">
                       <t t-if="' - ' in product_text">
                         <span class="so-product-ar" t-out="product_text.partition(' - ')[0].strip()"/>
                         <span class="so-product-en" t-out="product_text.partition(' - ')[2].strip()"/>
@@ -634,14 +641,14 @@
                         <span class="so-product-ar" t-out="product_text"/>
                       </t>
                     </td>
-                    <td>
+                    <td name="td_quantity">
                       <span class="so-ltr" t-out="qty_txt"/>
                     </td>
                     <td>
                       <span t-if="line.product_uom_id" t-field="line.product_uom_id.name"/>
                       <span t-else="">-</span>
                     </td>
-                    <td class="so-price-cell">
+                    <td name="td_price_unit" class="so-price-cell">
                       <span class="so-money">
                         <t t-if="is_sar">
                           <span t-out="unit_excl" t-options="{&quot;widget&quot;: &quot;float&quot;, &quot;precision&quot;: 2}"/>
@@ -652,19 +659,19 @@
                         </t>
                       </span>
                     </td>
-                    <td>
+                    <td name="td_discount">
                       <t t-if="line.discount">
                         <span t-field="line.discount"/>%
                                         </t>
                       <t t-else="">-</t>
                     </td>
-                    <td>
+                    <td name="td_taxes">
                       <t t-if="line.tax_ids">
-                        <span t-out="', '.join([(tax.invoice_label or tax.name) for tax in line.tax_ids])"/>
+                        <span id="line_tax_ids" t-out="', '.join([(tax.invoice_label or tax.name) for tax in line.tax_ids])"/>
                       </t>
                       <t t-else="">-</t>
                     </td>
-                    <td class="so-total-cell">
+                    <td name="td_subtotal" class="so-total-cell o_price_total">
                       <span class="so-money">
                         <t t-if="is_sar">
                           <span t-field="line.price_total" t-options="{&quot;widget&quot;: &quot;float&quot;, &quot;precision&quot;: 2}"/>
@@ -678,7 +685,7 @@
                   </tr>
                 </t>
                 <t t-if="current_section and line.display_type != 'line_section' and (line_last or lines[line_index + 1].display_type == 'line_section')">
-                  <tr class="so-section-subtotal">
+                  <tr class="so-section-subtotal is-subtotal">
                     <td colspan="8">
                                         إجمالي القسم شامل الضريبة
                                         <span class="so-summary-label-en">SECTION SUBTOTAL INCL. TAX</span>:
@@ -699,7 +706,7 @@
           <div id="right-elements">
           <div id="total">
           <div class="so-summary-box">
-            <table class="so-rounded">
+            <table class="so-rounded o_total_table">
               <tbody>
                 <tr>
                   <td class="so-summary-label">
@@ -889,8 +896,38 @@
             </div>
             <div t-field="o.narration"/>
           </div>
-          <div id="qrcode"/>
+          <div id="qrcode">
+            <div class="qrcode" id="qrcode_image"/>
+            <div id="qrcode_info"/>
           </div>
+          </div>
+          <div class="so-hidden" style="display: none;">
+            <div name="shipping_address_block"/>
+            <div name="address_not_same_as_shipping">
+              <div id="partner_vat_address_not_same_as_shipping"/>
+            </div>
+            <div name="address_same_as_shipping">
+              <div id="partner_vat_address_same_as_shipping"/>
+            </div>
+            <div name="no_shipping">
+              <div id="partner_vat_no_shipping"/>
+            </div>
+            <div name="invoice_date"/>
+            <div name="due_date"/>
+            <div name="delivery_date"/>
+            <div name="origin"/>
+            <div name="customer_code"/>
+            <div name="reference"/>
+            <div name="incoterm_id"/>
+            <span id="payment_terms_note_id"/>
+            <div id="total_payment_term_details_table"/>
+            <p name="note"/>
+            <p name="taxes_legal_notes"/>
+            <p name="payment_communication"/>
+            <div name="qr_code_placeholder"/>
+            <div name="comment"/>
+          </div>
+        </div>
         </div>
       </t>
     </xpath>
