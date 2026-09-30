@@ -606,6 +606,7 @@
                   <t t-set="line_number" t-value="line_number + 1"/>
                   <t t-set="section_subtotal" t-value="section_subtotal + line.price_total"/>
                   <t t-set="unit_excl" t-value="line.tax_id.compute_all(line.price_unit, doc.currency_id, 1.0, product=line.product_id, partner=doc.partner_id)['total_excluded']"/>
+                  <t t-set="qty_txt" t-value="('%.3f' % line.product_uom_qty).rstrip('0').rstrip('.')"/>
                   <t t-set="product_name" t-value="line.product_id.name or line.name or ''"/>
                   <t t-set="product_code" t-value="line.product_id.default_code if line.product_id else False"/>
                   <t t-set="product_text" t-value="product_name if isinstance(product_name, str) else ''"/>
@@ -624,7 +625,7 @@
                       </t>
                     </td>
                     <td>
-                      <span t-field="line.product_uom_qty"/>
+                      <span class="so-ltr" t-out="qty_txt"/>
                     </td>
                     <td>
                       <span t-if="line.product_uom" t-field="line.product_uom.name"/>
