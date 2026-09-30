@@ -400,6 +400,7 @@
           <div class="so-logo-header" t-if="company.logo">
             <img class="so-logo" t-att-src="image_data_uri(company.logo)" t-att-alt="company.name or 'Company Logo'"/>
           </div>
+          <div id="informations">
           <table class="so-doc-bar so-rounded">
             <tbody>
               <tr>
@@ -436,6 +437,7 @@
               </tr>
             </tbody>
           </table>
+          </div>
           <table class="so-party-table so-rounded">
             <tbody>
               <tr>
@@ -551,7 +553,7 @@
               </tr>
             </tbody>
           </table>
-          <table class="so-lines so-rounded">
+          <table class="so-lines so-rounded" name="invoice_line_table">
             <thead>
               <tr>
                 <th style="width: 11%;">
@@ -588,7 +590,7 @@
                 </th>
               </tr>
             </thead>
-            <tbody>
+            <tbody class="invoice_tbody">
               <t t-set="line_number" t-value="0"/>
               <t t-set="section_subtotal" t-value="0"/>
               <t t-set="current_section" t-value="False"/>
@@ -694,6 +696,8 @@
               </t>
             </tbody>
           </table>
+          <div id="right-elements">
+          <div id="total">
           <div class="so-summary-box">
             <table class="so-rounded">
               <tbody>
@@ -845,6 +849,9 @@
               </tbody>
             </table>
           </div>
+          </div>
+          </div>
+          <div id="payment_term">
           <div class="so-note-box so-rounded" t-if="o.company_id.display_invoice_amount_total_words">
             <div class="so-note-title">
                         المبلغ بالحروف
@@ -879,6 +886,8 @@
                         <span class="so-note-title-en">NOTES</span>
             </div>
             <div t-field="o.narration"/>
+          </div>
+          <div id="qrcode"/>
           </div>
         </div>
       </t>
