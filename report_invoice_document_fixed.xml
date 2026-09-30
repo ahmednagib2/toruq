@@ -1,0 +1,886 @@
+<data>
+    <xpath position="replace" expr="/t[@t-name='account.report_invoice_document']/t[@t-call='web.external_layout']" meta-t-call="web.external_layout"/>
+    <xpath position="inside" expr="/t[@t-name='account.report_invoice_document']" meta-t-name="account.report_invoice_document">
+      <t t-set="o" t-value="o.with_context(lang=o.partner_id.lang or lang)"/>
+      <t t-set="company" t-value="o.company_id"/>
+      <t t-set="partner" t-value="o.partner_id"/>
+      <t t-set="is_sar" t-value="o.currency_id.name == 'SAR'"/>
+      <t t-set="doc_titles" t-value="{'out_invoice': ('فاتورة', 'INVOICE'), 'out_refund': ('إشعار دائن', 'CREDIT NOTE'), 'in_invoice': ('فاتورة مورد', 'VENDOR BILL'), 'in_refund': ('إشعار دائن مورد', 'VENDOR CREDIT NOTE'), 'out_receipt': ('إيصال', 'RECEIPT'), 'in_receipt': ('إيصال شراء', 'PURCHASE RECEIPT')}.get(o.move_type, ('مستند', 'DOCUMENT'))"/>
+      <t t-set="doc_type_ar" t-value="('مسودة ' if o.state == 'draft' else '') + doc_titles[0] + (' مبدئية' if proforma else '') + (' ملغاة' if o.state == 'cancel' else '')"/>
+      <t t-set="doc_type_en" t-value="('PROFORMA ' if proforma else '') + ('DRAFT ' if o.state == 'draft' else '') + doc_titles[1] + (' - CANCELLED' if o.state == 'cancel' else '')"/>
+      <t t-call="web.basic_layout" ws-call-key="1">
+        <style type="text/css">
+                @import url('https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700&amp;display=swap');
+
+                @font-face {
+                    font-family: 'so_saudi_riyal';
+                    src: url('/msr_sar_symbol/static/src/fonts/saudi_riyal.ttf') format('truetype');
+                    font-weight: normal;
+                    font-style: normal;
+                }
+
+                html,
+                body,
+                .article,
+                .page.so-custom-report,
+                .page.so-custom-report * {
+                    font-family: 'Tajawal', Arial, sans-serif !important;
+                }
+
+                html,
+                body,
+                .article {
+                    margin-top: 0 !important;
+                    padding-top: 0 !important;
+                }
+
+                .page.so-custom-report {
+                    direction: rtl;
+                    color: #20252b;
+                    font-size: 9pt;
+                    line-height: 1.25;
+                    margin-top: 0 !important;
+                    padding-top: 0 !important;
+                }
+
+                .so-custom-report * {
+                    box-sizing: border-box;
+                }
+
+                .page.so-custom-report .so-riyal-glyph {
+                    font-family: 'so_saudi_riyal' !important;
+                    font-size: 11pt;
+                    font-weight: normal !important;
+                    font-style: normal !important;
+                    line-height: 1;
+                    display: inline-block;
+                    direction: ltr;
+                    vertical-align: baseline;
+                }
+
+                .so-money {
+                    direction: ltr;
+                    white-space: nowrap;
+                }
+
+                .so-custom-report table {
+                    width: 100%;
+                    table-layout: fixed;
+                    border-collapse: separate;
+                    border-spacing: 0;
+                }
+
+                .so-custom-report tr,
+                .so-summary-box,
+                .so-note-box,
+                .so-signature-box {
+                    page-break-inside: avoid !important;
+                }
+
+                .so-logo-header {
+                    text-align: center;
+                    padding: 0 !important;
+                    margin: 0 0 6px !important;
+                    line-height: 1 !important;
+                }
+
+                .so-logo {
+                    display: inline-block;
+                    max-width: 105px;
+                    max-height: 82px;
+                    width: auto;
+                    height: auto;
+                    vertical-align: top;
+                }
+
+                .so-rounded {
+                    border: 1px solid #aeb7bf;
+                    border-radius: 7px;
+                    overflow: hidden;
+                }
+
+                .so-doc-bar {
+                    margin: 0 0 10px;
+                }
+
+                .so-doc-bar td {
+                    text-align: center;
+                    vertical-align: middle;
+                    padding: 6px 5px;
+                    border-left: 1px solid #cbd2d8;
+                }
+
+                .so-doc-bar td:last-child {
+                    border-left: 0;
+                }
+
+                .so-doc-label {
+                    background: #f2f3f4;
+                    font-weight: 700;
+                }
+
+                .so-label-ar,
+                .so-label-en {
+                    display: block;
+                }
+
+                .so-label-ar {
+                    direction: rtl;
+                    font-weight: 700;
+                }
+
+                .so-label-en {
+                    direction: ltr;
+                    font-size: 8pt;
+                    font-weight: 400;
+                    color: #555;
+                    margin-top: 1px;
+                }
+
+                .so-doc-value {
+                    direction: ltr;
+                    white-space: nowrap;
+                    font-weight: 500;
+                }
+
+                .so-doc-number {
+                    direction: ltr;
+                    white-space: nowrap;
+                    font-size: 12pt;
+                    font-weight: 700;
+                }
+
+                .so-doc-type {
+                    font-size: 10pt;
+                    font-weight: 700;
+                }
+
+                .so-doc-type-en {
+                    display: block;
+                    direction: ltr;
+                    font-size: 8pt;
+                    font-weight: 400;
+                    color: #555;
+                    margin-top: 1px;
+                }
+
+                .so-party-table {
+                    margin-bottom: 10px;
+                }
+
+                .so-party-table td {
+                    width: 50%;
+                    vertical-align: top;
+                    padding: 0;
+                }
+
+                .so-party-cell {
+                    min-height: 122px;
+                    padding: 7px 9px;
+                    overflow-wrap: break-word;
+                    word-wrap: break-word;
+                }
+
+                .so-party-company {
+                    border-left: 1px solid #cbd2d8;
+                }
+
+                .so-party-heading {
+                    font-weight: 700;
+                    margin-bottom: 4px;
+                    border-bottom: 1px solid #dde2e6;
+                    padding-bottom: 3px;
+                }
+
+                .so-party-heading-en {
+                    direction: ltr;
+                    display: inline-block;
+                    margin-right: 4px;
+                    font-weight: 500;
+                }
+
+                .so-party-name {
+                    font-weight: 700;
+                    margin-bottom: 3px;
+                }
+
+                .so-party-row {
+                    margin: 1px 0;
+                }
+
+                .so-field-label {
+                    font-weight: 700;
+                }
+
+                .so-ltr {
+                    direction: ltr;
+                    unicode-bidi: embed;
+                    display: inline-block;
+                }
+
+                .so-lines {
+                    margin-bottom: 0;
+                    font-size: 9pt;
+                }
+
+                .so-lines thead {
+                    display: table-header-group;
+                }
+
+                .so-lines th,
+                .so-lines td {
+                    padding: 3px 3px !important;
+                    vertical-align: middle !important;
+                    text-align: center !important;
+                    line-height: 1.15 !important;
+                    overflow-wrap: break-word;
+                    word-wrap: break-word;
+                    border-left: 1px solid #bfc6cd;
+                    border-bottom: 1px solid #bfc6cd;
+                }
+
+                .so-lines th:last-child,
+                .so-lines td:last-child {
+                    border-left: 0;
+                }
+
+                .so-lines tbody tr:last-child td {
+                    border-bottom: 0;
+                }
+
+                .so-lines th {
+                    background-color: #eef0f2;
+                    font-weight: 700;
+                }
+
+                .so-th-ar,
+                .so-th-en {
+                    display: block;
+                    text-align: center;
+                }
+
+                .so-th-ar {
+                    direction: rtl;
+                    font-weight: 700;
+                }
+
+                .so-th-en {
+                    direction: ltr;
+                    font-size: 8pt;
+                    font-weight: 400;
+                    color: #555;
+                    margin-top: 1px;
+                }
+
+                .so-description-cell {
+                    text-align: right !important;
+                    direction: rtl;
+                }
+
+                .so-product-ar {
+                    display: block;
+                    direction: rtl;
+                    text-align: right;
+                    font-weight: 700;
+                    line-height: 1.15 !important;
+                    margin: 0 !important;
+                    padding: 0 !important;
+                }
+
+                .so-product-en {
+                    display: block;
+                    direction: ltr;
+                    text-align: left;
+                    font-weight: 400;
+                    color: #555;
+                    line-height: 1.15 !important;
+                    margin: 1px 0 0 !important;
+                    padding: 0 !important;
+                }
+
+                .so-price-cell,
+                .so-total-cell {
+                    direction: ltr;
+                    white-space: nowrap;
+                }
+
+                .so-section-row td {
+                    background-color: #f4f5f6;
+                    font-weight: 700;
+                    text-align: right !important;
+                    direction: rtl;
+                    padding: 4px 6px !important;
+                }
+
+                .so-note-row td {
+                    color: #555;
+                    font-style: italic;
+                    text-align: right !important;
+                    direction: rtl;
+                    padding: 4px 6px !important;
+                }
+
+                .so-section-subtotal td {
+                    background-color: #fafafa;
+                    font-weight: 700;
+                    text-align: left !important;
+                    direction: ltr;
+                }
+
+                .so-summary-box {
+                    width: 54%;
+                    margin-right: 0;
+                    margin-left: auto;
+                    margin-top: 0;
+                }
+
+                .so-summary-box td {
+                    padding: 6px 8px;
+                    vertical-align: middle;
+                    border-left: 1px solid #29323a;
+                    border-bottom: 1px solid #29323a;
+                }
+
+                .so-summary-box td:last-child {
+                    border-left: 0;
+                }
+
+                .so-summary-box tr:last-child td {
+                    border-bottom: 0;
+                }
+
+                .so-summary-label {
+                    width: 62%;
+                    text-align: right;
+                    font-weight: 500;
+                }
+
+                .so-summary-label-en {
+                    direction: ltr;
+                    font-size: 8pt;
+                    color: #555;
+                    margin-right: 4px;
+                }
+
+                .so-summary-value {
+                    width: 38%;
+                    text-align: center;
+                    direction: ltr;
+                    white-space: nowrap;
+                }
+
+                .so-summary-total td {
+                    background-color: #eef0f2;
+                    font-weight: 700;
+                }
+
+                .so-summary-info td {
+                    background-color: #fafbfc;
+                }
+
+                .so-note-box,
+                .so-signature-box {
+                    margin-top: 12px;
+                    padding: 7px 9px;
+                }
+
+                .so-note-title,
+                .so-signature-title {
+                    font-weight: 700;
+                    margin-bottom: 3px;
+                }
+
+                .so-note-title-en {
+                    direction: ltr;
+                    color: #555;
+                    margin-right: 4px;
+                }
+            </style>
+        <div class="page so-custom-report" dir="rtl">
+          <div class="so-logo-header" t-if="company.logo">
+            <img class="so-logo" t-att-src="image_data_uri(company.logo)" t-att-alt="company.name or 'Company Logo'"/>
+          </div>
+          <table class="so-doc-bar so-rounded">
+            <tbody>
+              <tr>
+                <td style="width: 16%;" class="so-doc-label">
+                  <t t-if="o.move_type in ('out_refund', 'in_refund')">
+                    <span class="so-label-ar">تاريخ الإشعار</span>
+                    <span class="so-label-en">NOTE DATE</span>
+                  </t>
+                  <t t-else="">
+                    <span class="so-label-ar">تاريخ الفاتورة</span>
+                    <span class="so-label-en">INVOICE DATE</span>
+                  </t>
+                </td>
+                <td style="width: 15%;">
+                  <span class="so-doc-value" t-if="o.invoice_date" t-field="o.invoice_date" t-options="{&quot;widget&quot;: &quot;date&quot;}"/>
+                  <span t-if="not o.invoice_date">-</span>
+                </td>
+                <td style="width: 17%;" class="so-doc-label">
+                  <span class="so-label-ar">مندوب المبيعات</span>
+                  <span class="so-label-en">SALESPERSON</span>
+                </td>
+                <td style="width: 16%;">
+                  <span t-if="o.invoice_user_id" t-field="o.invoice_user_id.name"/>
+                  <span t-if="not o.invoice_user_id">-</span>
+                </td>
+                <td style="width: 18%;">
+                  <span class="so-doc-type" t-out="doc_type_ar"/>
+                  <span class="so-doc-type-en" t-out="doc_type_en"/>
+                </td>
+                <td style="width: 18%;">
+                  <span class="so-doc-number" t-if="o.name and o.name != '/'" t-field="o.name"/>
+                  <span class="so-doc-number" t-if="not o.name or o.name == '/'">-</span>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+          <table class="so-party-table so-rounded">
+            <tbody>
+              <tr>
+                <td>
+                  <div class="so-party-cell so-party-company">
+                    <div class="so-party-heading">
+                                        الشركة
+                                        <span class="so-party-heading-en">COMPANY</span>
+                    </div>
+                    <div class="so-party-name">
+                      <span t-field="company.name"/>
+                    </div>
+                    <div class="so-party-row" t-if="company.street or company.street2 or company.city or company.state_id or company.zip or company.country_id">
+                      <span class="so-field-label">العنوان</span>
+                      <span class="so-party-heading-en">ADDRESS</span>:
+                                        <span t-if="company.street" t-field="company.street"/>
+                      <span t-if="company.street2"> - <span t-field="company.street2"/>
+                      </span>
+                      <span t-if="company.city"> - <span t-field="company.city"/>
+                      </span>
+                      <span t-if="company.state_id"> - <span t-field="company.state_id.name"/>
+                      </span>
+                      <span t-if="company.zip"> - <span t-field="company.zip"/>
+                      </span>
+                      <span t-if="company.country_id"> - <span t-field="company.country_id.name"/>
+                      </span>
+                    </div>
+                    <div class="so-party-row" t-if="company.vat">
+                      <span class="so-field-label">الرقم الضريبي</span>
+                      <span class="so-party-heading-en">VAT</span>:
+                                        <span class="so-ltr" t-field="company.vat"/>
+                    </div>
+                    <div class="so-party-row" t-if="company.company_registry">
+                      <span class="so-field-label">السجل التجاري</span>
+                      <span class="so-party-heading-en">CR</span>:
+                                        <span class="so-ltr" t-field="company.company_registry"/>
+                    </div>
+                    <div class="so-party-row" t-if="company.phone">
+                      <span class="so-field-label">الهاتف</span>
+                      <span class="so-party-heading-en">PHONE</span>:
+                                        <span class="so-ltr" t-field="company.phone"/>
+                    </div>
+                    <div class="so-party-row" t-if="company.email">
+                      <span class="so-field-label">البريد</span>
+                      <span class="so-party-heading-en">EMAIL</span>:
+                                        <span class="so-ltr" t-field="company.email"/>
+                    </div>
+                  </div>
+                </td>
+                <td>
+                  <div class="so-party-cell">
+                    <div class="so-party-heading">
+                                        العميل
+                                        <span class="so-party-heading-en">CUSTOMER</span>
+                    </div>
+                    <div class="so-party-name">
+                      <span t-field="partner.name"/>
+                    </div>
+                    <div class="so-party-row" t-if="partner.ref">
+                      <span class="so-field-label">كود العميل</span>
+                      <span class="so-party-heading-en">CUSTOMER CODE</span>:
+                                        <span class="so-ltr" t-field="partner.ref"/>
+                    </div>
+                    <div class="so-party-row" t-if="partner.street or partner.street2 or partner.city or partner.state_id or partner.zip or partner.country_id">
+                      <span class="so-field-label">العنوان</span>
+                      <span class="so-party-heading-en">ADDRESS</span>:
+                                        <span t-if="partner.street" t-field="partner.street"/>
+                      <span t-if="partner.street2"> - <span t-field="partner.street2"/>
+                      </span>
+                      <span t-if="partner.city"> - <span t-field="partner.city"/>
+                      </span>
+                      <span t-if="partner.state_id"> - <span t-field="partner.state_id.name"/>
+                      </span>
+                      <span t-if="partner.zip"> - <span t-field="partner.zip"/>
+                      </span>
+                      <span t-if="partner.country_id"> - <span t-field="partner.country_id.name"/>
+                      </span>
+                    </div>
+                    <div class="so-party-row" t-if="partner.vat">
+                      <span class="so-field-label">الرقم الضريبي</span>
+                      <span class="so-party-heading-en">VAT</span>:
+                                        <span class="so-ltr" t-field="partner.vat"/>
+                    </div>
+                    <div class="so-party-row" t-if="partner.phone or partner.mobile">
+                      <span class="so-field-label">الهاتف</span>
+                      <span class="so-party-heading-en">PHONE</span>:
+                                        <span class="so-ltr" t-out="partner.phone or partner.mobile"/>
+                    </div>
+                    <div class="so-party-row" t-if="partner.email">
+                      <span class="so-field-label">البريد</span>
+                      <span class="so-party-heading-en">EMAIL</span>:
+                                        <span class="so-ltr" t-field="partner.email"/>
+                    </div>
+                    <div class="so-party-row" t-if="o.partner_shipping_id and o.partner_shipping_id != o.partner_id">
+                      <span class="so-field-label">عنوان الشحن</span>
+                      <span class="so-party-heading-en">SHIPPING ADDRESS</span>:
+                                        <span t-field="o.partner_shipping_id.name"/>
+                      <span t-if="o.partner_shipping_id.street"> - <span t-field="o.partner_shipping_id.street"/>
+                      </span>
+                      <span t-if="o.partner_shipping_id.street2"> - <span t-field="o.partner_shipping_id.street2"/>
+                      </span>
+                      <span t-if="o.partner_shipping_id.city"> - <span t-field="o.partner_shipping_id.city"/>
+                      </span>
+                      <span t-if="o.partner_shipping_id.state_id"> - <span t-field="o.partner_shipping_id.state_id.name"/>
+                      </span>
+                      <span t-if="o.partner_shipping_id.zip"> - <span t-field="o.partner_shipping_id.zip"/>
+                      </span>
+                      <span t-if="o.partner_shipping_id.country_id"> - <span t-field="o.partner_shipping_id.country_id.name"/>
+                      </span>
+                    </div>
+                  </div>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+          <table class="so-lines so-rounded">
+            <thead>
+              <tr>
+                <th style="width: 11%;">
+                  <span class="so-th-ar">رقم الصنف</span>
+                  <span class="so-th-en">REF#</span>
+                </th>
+                <th style="width: 28%;">
+                  <span class="so-th-ar">اسم المنتج</span>
+                  <span class="so-th-en">PRODUCT</span>
+                </th>
+                <th style="width: 7%;">
+                  <span class="so-th-ar">الكمية</span>
+                  <span class="so-th-en">QTY</span>
+                </th>
+                <th style="width: 9%;">
+                  <span class="so-th-ar">الوحدة</span>
+                  <span class="so-th-en">UOM</span>
+                </th>
+                <th style="width: 12%;">
+                  <span class="so-th-ar">السعر غير شامل الضريبة</span>
+                  <span class="so-th-en">UNIT PRICE EXCL. TAX</span>
+                </th>
+                <th style="width: 8%;">
+                  <span class="so-th-ar">الخصم</span>
+                  <span class="so-th-en">DISCOUNT</span>
+                </th>
+                <th style="width: 10%;">
+                  <span class="so-th-ar">الضريبة المطبقة</span>
+                  <span class="so-th-en">TAXES</span>
+                </th>
+                <th style="width: 15%;">
+                  <span class="so-th-ar">الإجمالي شامل الضريبة</span>
+                  <span class="so-th-en">TOTAL INCL. TAX</span>
+                </th>
+              </tr>
+            </thead>
+            <tbody>
+              <t t-set="line_number" t-value="0"/>
+              <t t-set="section_subtotal" t-value="0"/>
+              <t t-set="current_section" t-value="False"/>
+              <t t-set="lines" t-value="o.invoice_line_ids.sorted(key=lambda l: (-l.sequence, l.date, l.move_name, -l.id), reverse=True)"/>
+              <t t-foreach="lines" t-as="line">
+                <t t-if="line.display_type == 'line_section'">
+                  <t t-set="section_subtotal" t-value="0"/>
+                  <t t-set="current_section" t-value="True"/>
+                  <tr class="so-section-row">
+                    <td colspan="8">
+                      <span t-field="line.name" t-options="{'widget': 'text'}"/>
+                    </td>
+                  </tr>
+                </t>
+                <t t-elif="line.display_type == 'line_note'">
+                  <tr class="so-note-row">
+                    <td colspan="8">
+                      <span t-field="line.name" t-options="{'widget': 'text'}"/>
+                    </td>
+                  </tr>
+                </t>
+                <t t-else="">
+                  <t t-set="line_number" t-value="line_number + 1"/>
+                  <t t-set="section_subtotal" t-value="section_subtotal + line.price_total"/>
+                  <t t-set="unit_excl" t-value="line.tax_ids.compute_all(line.price_unit, o.currency_id, 1.0, product=line.product_id, partner=o.partner_id)['total_excluded']"/>
+                  <t t-set="qty_txt" t-value="('%.3f' % line.quantity).rstrip('0').rstrip('.')"/>
+                  <t t-set="product_name" t-value="line.product_id.name or line.name or ''"/>
+                  <t t-set="product_code" t-value="line.product_id.default_code if line.product_id else False"/>
+                  <t t-set="product_text" t-value="product_name if isinstance(product_name, str) else ''"/>
+                  <tr>
+                    <td>
+                      <span t-if="product_code" t-out="product_code"/>
+                      <span t-else="" t-out="line_number"/>
+                    </td>
+                    <td class="so-description-cell">
+                      <t t-if="' - ' in product_text">
+                        <span class="so-product-ar" t-out="product_text.partition(' - ')[0].strip()"/>
+                        <span class="so-product-en" t-out="product_text.partition(' - ')[2].strip()"/>
+                      </t>
+                      <t t-else="">
+                        <span class="so-product-ar" t-out="product_text"/>
+                      </t>
+                    </td>
+                    <td>
+                      <span class="so-ltr" t-out="qty_txt"/>
+                    </td>
+                    <td>
+                      <span t-if="line.product_uom_id" t-field="line.product_uom_id.name"/>
+                      <span t-else="">-</span>
+                    </td>
+                    <td class="so-price-cell">
+                      <span class="so-money">
+                        <t t-if="is_sar">
+                          <span t-out="unit_excl" t-options="{&quot;widget&quot;: &quot;float&quot;, &quot;precision&quot;: 2}"/>
+                          <span class="so-riyal-glyph"/>
+                        </t>
+                        <t t-else="">
+                          <span t-out="unit_excl" t-options="{&quot;widget&quot;: &quot;monetary&quot;, &quot;display_currency&quot;: o.currency_id}"/>
+                        </t>
+                      </span>
+                    </td>
+                    <td>
+                      <t t-if="line.discount">
+                        <span t-field="line.discount"/>%
+                                        </t>
+                      <t t-else="">-</t>
+                    </td>
+                    <td>
+                      <t t-if="line.tax_ids">
+                        <span t-out="', '.join([(tax.invoice_label or tax.name) for tax in line.tax_ids])"/>
+                      </t>
+                      <t t-else="">-</t>
+                    </td>
+                    <td class="so-total-cell">
+                      <span class="so-money">
+                        <t t-if="is_sar">
+                          <span t-field="line.price_total" t-options="{&quot;widget&quot;: &quot;float&quot;, &quot;precision&quot;: 2}"/>
+                          <span class="so-riyal-glyph"/>
+                        </t>
+                        <t t-else="">
+                          <span t-field="line.price_total" t-options="{&quot;widget&quot;: &quot;monetary&quot;, &quot;display_currency&quot;: o.currency_id}"/>
+                        </t>
+                      </span>
+                    </td>
+                  </tr>
+                </t>
+                <t t-if="current_section and line.display_type != 'line_section' and (line_last or lines[line_index + 1].display_type == 'line_section')">
+                  <tr class="so-section-subtotal">
+                    <td colspan="8">
+                                        إجمالي القسم شامل الضريبة
+                                        <span class="so-summary-label-en">SECTION SUBTOTAL INCL. TAX</span>:
+                                        <t t-if="is_sar">
+                        <span t-out="section_subtotal" t-options="{&quot;widget&quot;: &quot;float&quot;, &quot;precision&quot;: 2}"/>
+                        <span class="so-riyal-glyph"/>
+                      </t>
+                      <t t-else="">
+                        <span t-out="section_subtotal" t-options="{&quot;widget&quot;: &quot;monetary&quot;, &quot;display_currency&quot;: o.currency_id}"/>
+                      </t>
+                    </td>
+                  </tr>
+                  <t t-set="current_section" t-value="False"/>
+                </t>
+              </t>
+            </tbody>
+          </table>
+          <div class="so-summary-box">
+            <table class="so-rounded">
+              <tbody>
+                <tr>
+                  <td class="so-summary-label">
+                                    الإجمالي قبل الضريبة
+                                    <span class="so-summary-label-en">UNTAXED AMOUNT</span>
+                  </td>
+                  <td class="so-summary-value">
+                    <span class="so-money">
+                      <t t-if="is_sar">
+                        <span t-field="o.amount_untaxed" t-options="{&quot;widget&quot;: &quot;float&quot;, &quot;precision&quot;: 2}"/>
+                        <span class="so-riyal-glyph"/>
+                      </t>
+                      <t t-else="">
+                        <span t-field="o.amount_untaxed" t-options="{&quot;widget&quot;: &quot;monetary&quot;, &quot;display_currency&quot;: o.currency_id}"/>
+                      </t>
+                    </span>
+                  </td>
+                </tr>
+                <tr>
+                  <td class="so-summary-label">
+                                    الضرائب
+                                    <span class="so-summary-label-en">VAT TAXES</span>
+                  </td>
+                  <td class="so-summary-value">
+                    <span class="so-money">
+                      <t t-if="is_sar">
+                        <span t-field="o.amount_tax" t-options="{&quot;widget&quot;: &quot;float&quot;, &quot;precision&quot;: 2}"/>
+                        <span class="so-riyal-glyph"/>
+                      </t>
+                      <t t-else="">
+                        <span t-field="o.amount_tax" t-options="{&quot;widget&quot;: &quot;monetary&quot;, &quot;display_currency&quot;: o.currency_id}"/>
+                      </t>
+                    </span>
+                  </td>
+                </tr>
+                <tr class="so-summary-total">
+                  <td class="so-summary-label">
+                                    الإجمالي
+                                    <span class="so-summary-label-en">TOTAL</span>
+                  </td>
+                  <td class="so-summary-value">
+                    <span class="so-money">
+                      <t t-if="is_sar">
+                        <span t-field="o.amount_total" t-options="{&quot;widget&quot;: &quot;float&quot;, &quot;precision&quot;: 2}"/>
+                        <span class="so-riyal-glyph"/>
+                      </t>
+                      <t t-else="">
+                        <span t-field="o.amount_total" t-options="{&quot;widget&quot;: &quot;monetary&quot;, &quot;display_currency&quot;: o.currency_id}"/>
+                      </t>
+                    </span>
+                  </td>
+                </tr>
+                <t t-if="print_with_payments and o.payment_state != 'invoicing_legacy'">
+                  <t t-set="payments_vals" t-value="o.sudo().invoice_payments_widget and o.sudo().invoice_payments_widget['content'] or []"/>
+                  <t t-foreach="payments_vals" t-as="payment_vals">
+                    <tr class="so-summary-info" t-if="payment_vals['is_exchange'] == 0">
+                      <td class="so-summary-label">
+                                    مدفوع بتاريخ
+                                    <span class="so-summary-label-en">PAID ON</span>
+                        <span class="so-ltr" t-out="payment_vals['date']" t-options="{&quot;widget&quot;: &quot;date&quot;}"/>
+                      </td>
+                      <td class="so-summary-value">
+                        <span class="so-money">
+                          <t t-if="is_sar">
+                            <span t-out="payment_vals['amount']" t-options="{&quot;widget&quot;: &quot;float&quot;, &quot;precision&quot;: 2}"/>
+                            <span class="so-riyal-glyph"/>
+                          </t>
+                          <t t-else="">
+                            <span t-out="payment_vals['amount']" t-options="{&quot;widget&quot;: &quot;monetary&quot;, &quot;display_currency&quot;: o.currency_id}"/>
+                          </t>
+                        </span>
+                      </td>
+                    </tr>
+                  </t>
+                  <tr class="so-summary-total" t-if="len(payments_vals) &gt; 0">
+                    <td class="so-summary-label">
+                                    المبلغ المستحق
+                                    <span class="so-summary-label-en">AMOUNT DUE</span>
+                    </td>
+                    <td class="so-summary-value">
+                      <span class="so-money">
+                        <t t-if="is_sar">
+                          <span t-field="o.amount_residual" t-options="{&quot;widget&quot;: &quot;float&quot;, &quot;precision&quot;: 2}"/>
+                          <span class="so-riyal-glyph"/>
+                        </t>
+                        <t t-else="">
+                          <span t-field="o.amount_residual" t-options="{&quot;widget&quot;: &quot;monetary&quot;, &quot;display_currency&quot;: o.currency_id}"/>
+                        </t>
+                      </span>
+                    </td>
+                  </tr>
+                </t>
+                <tr class="so-summary-info" t-if="o.invoice_payment_term_id">
+                  <td class="so-summary-label">
+                                    شروط الدفع
+                                    <span class="so-summary-label-en">PAYMENT TERMS</span>
+                  </td>
+                  <td class="so-summary-value">
+                    <span t-field="o.invoice_payment_term_id.name"/>
+                  </td>
+                </tr>
+                <tr class="so-summary-info" t-if="o.invoice_date_due and o.move_type == 'out_invoice' and o.state == 'posted'">
+                  <td class="so-summary-label">
+                                    تاريخ الاستحقاق
+                                    <span class="so-summary-label-en">DUE DATE</span>
+                  </td>
+                  <td class="so-summary-value">
+                    <span t-field="o.invoice_date_due" t-options="{&quot;widget&quot;: &quot;date&quot;}"/>
+                  </td>
+                </tr>
+                <tr class="so-summary-info" t-if="o.delivery_date">
+                  <td class="so-summary-label">
+                                    تاريخ التسليم
+                                    <span class="so-summary-label-en">DELIVERY DATE</span>
+                  </td>
+                  <td class="so-summary-value">
+                    <span t-field="o.delivery_date" t-options="{&quot;widget&quot;: &quot;date&quot;}"/>
+                  </td>
+                </tr>
+                <tr class="so-summary-info" t-if="o.invoice_origin">
+                  <td class="so-summary-label">
+                                    المصدر
+                                    <span class="so-summary-label-en">SOURCE</span>
+                  </td>
+                  <td class="so-summary-value">
+                    <span t-field="o.invoice_origin"/>
+                  </td>
+                </tr>
+                <tr class="so-summary-info" t-if="o.ref">
+                  <td class="so-summary-label">
+                                    مرجع العميل
+                                    <span class="so-summary-label-en">CUSTOMER REF.</span>
+                  </td>
+                  <td class="so-summary-value">
+                    <span t-field="o.ref"/>
+                  </td>
+                </tr>
+                <tr class="so-summary-info" t-if="o.move_type in ('out_invoice', 'in_refund') and o.payment_reference">
+                  <td class="so-summary-label">
+                                    مرجع الدفع
+                                    <span class="so-summary-label-en">PAYMENT REF.</span>
+                  </td>
+                  <td class="so-summary-value">
+                    <span t-field="o.payment_reference"/>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+          <div class="so-note-box so-rounded" t-if="o.company_id.display_invoice_amount_total_words">
+            <div class="so-note-title">
+                        المبلغ بالحروف
+                        <span class="so-note-title-en">TOTAL AMOUNT IN WORDS</span>
+            </div>
+            <div t-field="o.amount_total_words"/>
+          </div>
+          <div class="so-note-box so-rounded" t-if="o.invoice_payment_term_id and o.invoice_payment_term_id.note">
+            <div class="so-note-title">
+                        شروط الدفع
+                        <span class="so-note-title-en">PAYMENT TERMS</span>
+            </div>
+            <div t-field="o.invoice_payment_term_id.note"/>
+          </div>
+          <div class="so-note-box so-rounded" t-if="not is_html_empty(o.fiscal_position_id.note)">
+            <div class="so-note-title">
+                        ملاحظة الوضع الضريبي
+                        <span class="so-note-title-en">FISCAL POSITION REMARK</span>
+            </div>
+            <div t-field="o.fiscal_position_id.note"/>
+          </div>
+          <div class="so-note-box so-rounded" t-if="not is_html_empty(o.taxes_legal_notes)">
+            <div class="so-note-title">
+                        ملاحظات ضريبية
+                        <span class="so-note-title-en">TAX NOTES</span>
+            </div>
+            <div t-field="o.taxes_legal_notes"/>
+          </div>
+          <div class="so-note-box so-rounded" t-if="not is_html_empty(o.narration)">
+            <div class="so-note-title">
+                        ملاحظات
+                        <span class="so-note-title-en">NOTES</span>
+            </div>
+            <div t-field="o.narration"/>
+          </div>
+        </div>
+      </t>
+    </xpath>
+  </data>
